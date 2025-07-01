@@ -166,7 +166,7 @@ def auth_router():
                 )
 
             if not verify_password(form_data.password, user["password"]):
-                raise HTTPException(
+                raise HTTPException(   
                     status_code=status.HTTP_401_UNAUTHORIZED,
                     detail="Invalid credentials"
                 )
@@ -477,3 +477,5 @@ def admin_router():
             )
 
     return router
+     
+     

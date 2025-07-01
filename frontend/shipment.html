@@ -1,106 +1,375 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Shipment</title>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-  <link rel="stylesheet" href="style5.css">
-</head>
-<body>
-  <div class="container">
-    <nav class="sidebar">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>My Shipment</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', sans-serif;
+    }
 
-        <ul class="nav-top">
-          <li><a href="dashboard.html"><i class="fas fa-chart-line"></i> <span> Dashboard</span></a></li>
-          <li><a href="account.html"><i class="fas fa-user-circle"></i> <span> My Account</span></a></li>
-          <li  class="active"><a href="shipment.html"><i class="fas fa-box-open"></i> <span> My Shipment</span></a></li>
-          <li><a href="new_shipment.html"><i class="fas fa-plus-square"></i> <span> New Shipment</span></a></li>
-          <li><a href="device_data.html"><i class="fas fa-microchip"></i> <span> Device Data</span></a></li>
-          <li id="admin-tools-item" style="display: none;"><a href="admin_tools.html"><i class="fas fa-tools"></i> <span> Admin Tools</span></a></li>
+    body, html {
+      height: 100%;
+    }
 
-        </ul>
-        <ul class="nav-bottom">
-            <li class="logout"><a href="index.html" onclick="logout()"><i class="fas fa-sign-out-alt"></i> <span>Logout</span></a></li>
-        </ul>
-      </nav>
+    .container {
+      display: flex;
+      height: 100vh;
+    }
 
-    <div class="main-content">
+    .sidebar {
+      width: 20vw;
+      background: #54baff;
+      padding: 20px 0;
+      border-top-right-radius: 20px;
+      border-bottom-right-radius: 20px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
 
-        <div class="main-header">
-            <h1>shipment</h1>
-          </div>
-          <div class="shipment-container">
-              <div class="shipment-list" id="shipment-list"></div>
-              <div class="shipment-details" id="shipment-details"></div>
-          </div>
-      </div>
-      
-  </div>
+    .sidebar ul {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
 
-      <script type="module">
-        import { apiClient } from '/frontend/js/api-client.js';
-        import { ErrorHandler } from '/frontend/js/error-handler.js';
+    .sidebar li {
+      display: flex;
+      align-items: start;
+      padding: 12px 16px;
+      font-size: 16px;
+      color: white;
+      cursor: pointer;
+      border-radius: 10px;
+      transition: background 0.3s;
+    }
 
-        document.addEventListener('DOMContentLoaded', async () => {
-          try {
-            const { shipments } = await apiClient.getShipments();
-            renderShipments(shipments);
-          } catch (error) {
-            ErrorHandler.showError(error.message);
-            console.error('Shipment loading error:', error);
+    .sidebar li:hover,
+    .sidebar .active {
+      background-color: rgba(255, 255, 255, 0.2);
+    }
+
+    .sidebar .logout {
+      color: white;
+    }
+
+    a {
+      text-decoration: none;
+      color: white;
+      width: 100%;
+    }
+
+    span {
+      padding-left: 15px;
+    }
+
+    .main-content {
+      flex-grow: 1;
+      padding: 20px;
+      border-radius: 20px;
+      background: url('map.jpg');
+      background-size: cover;
+      position: relative;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .main-content::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      backdrop-filter: blur(5px);
+      z-index: -1;
+      border-radius: 20px;
+    }
+
+    .main-header {
+      width: 100%;
+      padding: 20px 30px;
+      margin-bottom: 10px;
+      text-align: center;
+    }
+
+    .main-header h1 {
+      font-size: 28px;
+      color: #000;
+      text-shadow: 1px 1px 4px rgba(0, 0, 0, 0.2);
+    }
+
+    .shipment-container {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      background: rgba(255, 255, 255, 0.97);
+      border-radius: 18px;
+      box-shadow: 0 2px 12px rgba(0, 0, 0, 0.07);
+      padding: 24px;
+      overflow-y: auto;
+    }
+
+    .shipment-card {
+      background: #f0f8ff;
+      border: 1px solid #ccc;
+      padding: 16px;
+      margin-bottom: 16px;
+      border-radius: 10px;
+    }
+
+    .shipment-card h3 {
+      margin-bottom: 8px;
+    }
+
+    .shipment-card p {
+      margin: 4px 0;
+    }
+
+    .shipment-card button {
+      margin-top: 10px;
+      background-color: #54baff;
+      border: none;
+      color: white;
+      padding: 8px 14px;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+
+    .shipment-card button:hover {
+      background-color: #429ddc;
+    }
+
+    @media (max-width: 700px) {
+      .main-content {
+        padding: 8px;
+      }
+
+      .shipment-card {
+        padding: 10px;
+      }
+
+      .main-header h1 {
+        font-size: 22px;
+      }
+    }
+    .table-container {
+        margin-top: 20px;
+        background: rgba(255, 255, 255, 0.97);
+        border-radius: 12px;
+        padding: 20px;
+        box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+        overflow-x: auto;
+      }
+
+      #shipment-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-family: 'Segoe UI', Arial, sans-serif;
+      }
+
+      #shipment-table th,
+      #shipment-table td {
+        border-bottom: 1px solid #ccc;
+        padding: 12px 10px;
+        text-align: center;
+        white-space: nowrap;
+      }
+
+      #shipment-table thead {
+        background-color: #54baff;
+        color: white;
+      }
+
+      #shipment-table tbody tr:nth-child(even) {
+        background: #f8fafc;
+      }
+
+      #shipment-table tbody tr:hover {
+        background: #ffe5dc;
+      }
+
+
+  </style>
+
+  <script>
+    function getToken() {
+      return localStorage.getItem("access_token");
+    }
+
+    document.addEventListener("DOMContentLoaded", async () => {
+      const token = getToken();
+      if (!token) {
+        alert('Session expired or unauthorized. Please log in.');
+        window.location.href = '/frontend/index.html';
+        return;
+      }
+
+      const role = localStorage.getItem("user_role");
+      if (role === "admin") {
+        document.getElementById("admin-tools-item").style.display = "block";
+      }
+
+      try {
+        const response = await fetch('/shipment/search_shipments', {
+          headers: {
+            'Authorization': `Bearer ${token}`
           }
         });
 
-        function renderShipments(shipments) {
-          const container = document.getElementById('shipment-list');
-          container.innerHTML = shipments.map(shipment => `
-            <div class="shipment-card">
-              <h3>${shipment.shipment_number}</h3>
-              <p>Route: ${shipment.route_details}</p>
-              <p>Status: ${shipment.status}</p>
-              <button class="view-details" data-id="${shipment._id}">
-                View Details
-              </button>
+        if (response.status === 401) {
+          localStorage.clear();
+          alert('Unauthorized. Please log in again.');
+          window.location.href = '/frontend/index.html';
+          return;
+        }
+
+        const result = await response.json();
+        console.log("Fetched result from /search_shipments:", result);  // 👈 ADDED
+        renderShipments(result.shipments || []);
+
+      } catch (error) {
+        console.error('Shipment loading error:', error);
+        showErrorToast("Failed to load shipment data. Try again later.");
+      }
+    });
+
+    function renderShipments(shipments) {
+        const tbody = document.querySelector("#shipment-table tbody");
+        tbody.innerHTML = '';
+
+        if (!shipments || shipments.length === 0) {
+          tbody.innerHTML = '<tr><td colspan="13">No shipments available</td></tr>';
+          return;
+        }
+
+        shipments.forEach(item => {
+          const tr = document.createElement("tr");
+          tr.innerHTML = `
+            <td>${item.shipment_number || 'N/A'}</td>
+            <td>${item.route_details || 'N/A'}</td>
+            <td>${item.device || 'N/A'}</td>
+            <td>${item.po_number || 'N/A'}</td>
+            <td>${item.ndc_number || 'N/A'}</td>
+            <td>${item.serial_number || 'N/A'}</td>
+            <td>${item.container_number || 'N/A'}</td>
+            <td>${item.goods_type || 'N/A'}</td>
+            <td>${item.delivery_date || 'N/A'}</td>
+            <td>${item.delivery_number || 'N/A'}</td>
+            <td>${item.batch_id || 'N/A'}</td>
+            <td>${item.description || 'N/A'}</td>
+            <td>${item.created_at ? new Date(item.created_at).toLocaleString() : 'N/A'}</td>
+          `;
+          tbody.appendChild(tr);
+        });
+      }
+
+
+
+    function showErrorToast(message) {
+      const toast = document.createElement('div');
+      toast.style.position = 'fixed';
+      toast.style.bottom = '20px';
+      toast.style.right = '20px';
+      toast.style.padding = '15px';
+      toast.style.backgroundColor = '#54baff';
+      toast.style.color = 'white';
+      toast.style.borderRadius = '5px';
+      toast.style.zIndex = '1000';
+      toast.textContent = message;
+      document.body.appendChild(toast);
+      setTimeout(() => {
+        document.body.removeChild(toast);
+      }, 5000);
+    }
+
+    async function showShipmentDetails(event) {
+      const shipmentId = event.target.dataset.id;
+      try {
+        const token = getToken();
+        const response = await fetch(`/shipment/${shipmentId}`, {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        });
+        const shipment = await response.json();
+        alert(`Shipment Details:\n${JSON.stringify(shipment, null, 2)}`);
+      } catch (error) {
+        showErrorToast('Failed to load shipment details.');
+      }
+    }
+
+    async function logout() {
+      try {
+        localStorage.clear();
+        sessionStorage.clear();
+        await fetch('/auth/logout', {
+          method: 'GET',
+          credentials: 'include'
+        });
+        window.location.href = '/frontend/index.html';
+      } catch (error) {
+        console.error('Logout failed:', error);
+        window.location.href = '/frontend/index.html';
+      }
+    }
+  </script>
+</head>
+
+<body>
+  <div class="container">
+    <nav class="sidebar">
+      <ul class="nav-top">
+        <li><a href="dashboard.html"><i class="fas fa-chart-line"></i> <span> Dashboard</span></a></li>
+        <li><a href="account.html"><i class="fas fa-user-circle"></i> <span> My Account</span></a></li>
+        <li class="active"><a href="shipment.html"><i class="fas fa-box-open"></i> <span> My Shipment</span></a></li>
+        <li><a href="new_shipment.html"><i class="fas fa-plus-square"></i> <span> New Shipment</span></a></li>
+        <li><a href="device_data.html"><i class="fas fa-microchip"></i> <span> Device Data</span></a></li>
+        <li id="admin-tools-item" style="display: none;"><a href="admin_tools.html"><i class="fas fa-tools"></i> <span> Admin Tools</span></a></li>
+      </ul>
+      <ul class="nav-bottom">
+        <li class="logout"><a href="index.html" onclick="logout(event)"><i class="fas fa-sign-out-alt"></i> <span>Logout</span></a></li>
+      </ul>
+    </nav>
+
+    <div class="main-content">
+      <div class="main-header">
+        <h1>My Shipment</h1>
+      </div>
+      <div class="shipment-container">
+        <div class="table-container">
+              <table id="shipment-table">
+                <thead>
+                  <tr>
+                    <th>Shipment Number</th>
+                    <th>Route Details</th>
+                    <th>Device</th>
+                    <th>PO Number</th>
+                    <th>NDC Number</th>
+                    <th>Serial Number</th>
+                    <th>Container Number</th>
+                    <th>Goods Type</th>
+                    <th>Delivery Date</th>
+                    <th>Delivery Number</th>
+                    <th>Batch ID</th>
+                    <th>Description</th>
+                    <th>Created At</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <!-- Shipment data will go here -->
+                </tbody>
+              </table>
             </div>
-          `).join('');
 
-          // Add event listeners
-          document.querySelectorAll('.view-details').forEach(button => {
-            button.addEventListener('click', showShipmentDetails);
-          });
-        }
 
-          async function logout() {
-          try {
-            // Clear client-side storage
-            localStorage.clear();
-            sessionStorage.clear();
-            
-            // Call backend logout
-            await fetch('/auth/logout', {
-              method: 'GET',
-              credentials: 'include' // Important for cookie clearing
-            });
-            
-            // Redirect to login page
-            window.location.href = '/frontend/index.html';
-          } catch (error) {
-            console.error('Logout failed:', error);
-            window.location.href = '/frontend/index.html';
-          }
-        }
- 
-
-        async function showShipmentDetails(event) {
-          const shipmentId = event.target.dataset.id;
-          try {
-            const shipment = await apiClient.request(`/shipment/${shipmentId}`);
-            // Show details modal...
-          } catch (error) {
-            ErrorHandler.showError('Failed to load shipment details');
-          }
-        }
-      </script>
+      </div>
+    </div>
+  </div>
 </body>
 </html>

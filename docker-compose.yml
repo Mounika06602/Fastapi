@@ -1,10 +1,10 @@
 
 services:
-  backend:
+  app:
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: backend-1
+    container_name: app
     ports:
       - "8000:8000"
     depends_on:
@@ -16,7 +16,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile.producer
-    container_name: producer-1
+    container_name: producer
     depends_on:
       - kafka
     env_file:
@@ -27,11 +27,11 @@ services:
     build:
       context: .
       dockerfile: Dockerfile.consumer
-    container_name: consumer-1
+    container_name: consumer
     depends_on:
       - kafka
     env_file:
-      - kafka.env
+      - kafka.env 
       - .env
 
   kafka:
@@ -47,6 +47,7 @@ services:
       - KAFKA_CFG_ADVERTISED_LISTENERS=PLAINTEXT://kafka:9092
       - KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP=CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT
       - KAFKA_CFG_CONTROLLER_LISTENER_NAMES=CONTROLLER
+      - KAFKA_HEAP_OPTS=-Xmx256m -Xms256m
     ports:
       - "9092:9092"
     volumes:
